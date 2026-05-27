@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#b9df9f"/>
+  <circle cx="376" cy="126" r="78" fill="#ffe78f"/>
+  <path d="M125 310c94-144 199-130 258-33-76-39-150-17-258 33Z" fill="#5f9a70"/>
+  <path d="M143 327c86-53 159-55 224-9-62 76-159 90-224 9Z" fill="#75aeca"/>
+  <text x="256" y="243" text-anchor="middle" font-family="Arial Rounded MT Bold, Arial, sans-serif" font-size="84" font-weight="900" fill="#fbfff8">É</text>
+</svg>

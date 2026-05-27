@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ételnapló</title>
+    <meta name="theme-color" content="#b9df9f" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="decor sun" aria-hidden="true"></div>
+    <div class="decor vine vine-left" aria-hidden="true"></div>
+    <div class="decor vine vine-right" aria-hidden="true"></div>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">30 napos megfigyelés</p>
+        <h1>Étel- és tünetnapló</h1>
+      </div>
+      <div class="top-actions">
+        <button class="toolbar-button" id="printBtn" type="button" title="Nyomtatás">Nyomtatás</button>
+        <button class="toolbar-button" id="exportJsonBtn" type="button" title="Adatmentés JSON export">Adatmentés</button>
+        <label class="toolbar-button file-button" title="JSON import">
+          Import
+          <input id="importJsonInput" type="file" accept="application/json" />
+        </label>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Nap választása">
+        <section class="setup-panel">
+          <label for="startDate">Kezdés napja</label>
+          <div class="date-row">
+            <input id="startDate" type="date" />
+            <button id="todayBtn" type="button">Ma</button>
+          </div>
+          <button id="addMonthBtn" class="wide-button" type="button">+ Még egy hónap</button>
+          <div class="progress">
+            <span id="progressText">0 / 30 nap</span>
+            <div class="progress-track"><span id="progressBar"></span></div>
+          </div>
+        </section>
+        <section>
+          <div class="section-title">
+            <h2>Napok</h2>
+            <span id="rangeText"></span>
+          </div>
+          <div class="day-list" id="dayList"></div>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <nav class="tabs" aria-label="Nézetek">
+          <button class="tab active" type="button" data-tab="daily">Napló</button>
+          <button class="tab" type="button" data-tab="report">Orvosi összefoglaló</button>
+        </nav>
+
+        <section class="tab-panel active" id="dailyPanel">
+          <div class="day-header">
+            <div>
+              <p class="eyebrow" id="selectedDayLabel"></p>
+              <h2 id="selectedDateTitle"></h2>
+            </div>
+            <div class="status-strip">
+              <span id="mealCountPill"></span>
+              <span id="symptomPill"></span>
+            </div>
+          </div>
+
+          <div class="grid two">
+            <section class="panel">
+              <div class="section-title">
+                <h3>Étkezések</h3>
+                <button id="addMealBtn" type="button">+ Egyéb étkezés</button>
+              </div>
+              <div class="meal-groups" id="mealGroups"></div>
+            </section>
+
+            <section class="panel">
+              <div class="section-title">
+                <h3>Tünetek</h3>
+                <button id="addSymptomBtn" type="button">+ Tünet</button>
+              </div>
+              <div class="symptom-list" id="symptomList"></div>
+            </section>
+          </div>
+
+          <section class="panel context-panel">
+            <div class="section-title">
+              <h3>Napi körülmények</h3>
+              <span>stressz, alvás, gyógyszerek</span>
+            </div>
+            <div class="context-grid">
+              <label>Stressz
+                <input id="stressInput" type="range" min="0" max="10" />
+                <span id="stressValue"></span>
+              </label>
+              <label>Alvás (óra)
+                <input id="sleepInput" type="number" min="0" max="24" step="0.5" />
+              </label>
+              <label>Gyógyszer / kiegészítő
+                <input id="medsInput" type="text" placeholder="pl. antihisztamin, probiotikum" />
+              </label>
+              <label>Általános megjegyzés
+                <textarea id="dayNoteInput" rows="2" placeholder="Bármi, ami befolyásolhatta a napot"></textarea>
+              </label>
+            </div>
+          </section>
+        </section>
+
+        <section class="tab-panel" id="reportPanel">
+          <div class="report-header">
+            <div>
+              <p class="eyebrow">Orvosnak vihető kivonat</p>
+              <h2>Összefoglaló és export</h2>
+            </div>
+            <div class="report-actions">
+              <button id="exportCsvBtn" type="button">CSV export</button>
+              <button id="exportPdfBtn" type="button">PDF / nyomtatás</button>
+              <button id="copyReportBtn" type="button">Szöveg másolása</button>
+            </div>
+          </div>
+          <div class="summary-grid" id="summaryGrid"></div>
+          <section class="panel">
+            <h3>Heti összefoglalók</h3>
+            <div id="weeklySummaryList" class="pattern-list"></div>
+          </section>
+          <section class="panel">
+            <h3>Lehetséges rossz reakciók</h3>
+            <div id="patternList" class="pattern-list"></div>
+          </section>
+          <section class="panel">
+            <h3>Legjobban tolerált elemek</h3>
+            <div id="positivePatternList" class="pattern-list"></div>
+          </section>
+          <section class="panel">
+            <h3>Szöveges összefoglaló</h3>
+            <textarea id="reportText" rows="12" readonly></textarea>
+          </section>
+          <p class="notice">Ez a napló megfigyelési segédeszköz, nem diagnosztikai eszköz. Allergia vagy súlyos tünet gyanúja esetén orvosi tanács szükséges.</p>
+        </section>
+      </section>
+    </main>
+
+    <dialog id="mealDialog">
+      <form method="dialog" class="dialog-form" id="mealForm">
+        <input type="hidden" id="mealId" />
+        <h2>Étkezés</h2>
+        <div class="form-grid">
+          <label>Típus
+            <select id="mealType">
+              <option value="breakfast">Reggeli</option>
+              <option value="lunch">Ebéd</option>
+              <option value="dinner">Vacsora</option>
+              <option value="snack">Nasi</option>
+              <option value="extra">Egyéb étkezés</option>
+            </select>
+          </label>
+          <label>Időpont
+            <input id="mealTime" type="time" required />
+          </label>
+          <label class="wide">Mit ettél?
+            <input id="mealFood" type="text" placeholder="pl. zabkása almával" />
+          </label>
+          <label class="wide">Összetevők
+            <textarea id="mealIngredients" rows="3" placeholder="tej, tojás, fűszerek, szószok, adalékok..."></textarea>
+          </label>
+          <label>Mennyiség
+            <input id="mealAmount" type="text" placeholder="pl. 1 tányér, 2 szelet" />
+          </label>
+          <label>Hely / márkanév
+            <input id="mealSource" type="text" placeholder="otthon, étterem, termék neve" />
+          </label>
+          <label class="wide">Fotó az étkezésről (opcionális)
+            <input id="mealPhoto" type="file" accept="image/*" />
+          </label>
+          <div class="wide photo-preview" id="mealPhotoPreview"></div>
+          <button class="wide subtle-button" id="removeMealPhotoBtn" type="button">Fotó eltávolítása</button>
+        </div>
+        <fieldset>
+          <legend>Jelölt allergének / triggergyanús elemek</legend>
+          <div class="chip-grid" id="allergenChips"></div>
+        </fieldset>
+        <label>Megjegyzés
+          <textarea id="mealNote" rows="2" placeholder="pl. új étel, gyorsan ettem, csípős volt"></textarea>
+        </label>
+        <menu>
+          <button id="deleteMealBtn" class="danger" type="button">Törlés</button>
+          <button id="cancelMealBtn" type="button">Mégse</button>
+          <button id="saveMealBtn" value="default" type="submit">Mentés</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="symptomDialog">
+      <form method="dialog" class="dialog-form" id="symptomForm">
+        <input type="hidden" id="symptomId" />
+        <input type="hidden" id="linkedMealId" />
+        <h2>Tünet</h2>
+        <div class="form-grid">
+          <label>Időpont
+            <input id="symptomTime" type="time" required />
+          </label>
+          <label>Erősség
+            <input id="symptomSeverity" type="range" min="0" max="10" />
+            <span id="symptomSeverityValue"></span>
+          </label>
+          <fieldset class="wide">
+            <legend>Gyakori tünetek</legend>
+            <div class="chip-grid" id="symptomPresetChips"></div>
+          </fieldset>
+          <label class="wide">Pontosítás
+            <input id="symptomType" type="text" placeholder="pl. bal oldali hasi fájdalom" />
+          </label>
+          <label class="wide">Kapcsolódó étkezés
+            <select id="symptomMealSelect"></select>
+          </label>
+          <label>Meddig tartott?
+            <input id="durationInput" type="text" placeholder="pl. 2 óra" />
+          </label>
+        </div>
+        <label>Megjegyzés
+          <textarea id="symptomNote" rows="3" placeholder="kapcsolódó helyzet, menzesz, stressz, mozgás, gyógyszer"></textarea>
+        </label>
+        <menu>
+          <button id="deleteSymptomBtn" class="danger" type="button">Törlés</button>
+          <button id="cancelSymptomBtn" type="button">Mégse</button>
+          <button id="saveSymptomBtn" value="default" type="submit">Mentés</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>
