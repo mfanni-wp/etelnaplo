@@ -57,7 +57,7 @@ body::before {
 .decor {
   pointer-events: none;
   position: fixed;
-  z-index: 2;
+  z-index: 0;
 }
 
 .sun {
@@ -67,6 +67,7 @@ body::before {
   border-radius: 999px;
   filter: blur(0.2px);
   height: 210px;
+  opacity: 0.46;
   right: -52px;
   top: -58px;
   width: 210px;
@@ -217,8 +218,22 @@ button.is-complete,
   gap: 8px;
 }
 
+.top-actions {
+  background: rgba(70, 113, 91, 0.44);
+  border: 1px solid rgba(246, 255, 249, 0.28);
+  border-radius: 12px;
+  flex-wrap: wrap;
+  padding: 8px;
+  position: relative;
+  z-index: 3;
+}
+
 .toolbar-button {
   align-items: center;
+  background: linear-gradient(135deg, #4f8469, #3f715a);
+  border-color: rgba(246, 255, 249, 0.48);
+  box-shadow: 0 8px 18px rgba(38, 86, 67, 0.2);
+  color: #fffbe7;
   display: inline-flex;
   font-weight: 800;
   height: 40px;
@@ -722,14 +737,23 @@ menu {
 }
 
 @media (max-width: 950px) {
-  .app-shell,
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+  }
+
   .grid.two,
   .summary-grid {
     grid-template-columns: 1fr;
   }
 
+  .workspace {
+    order: 1;
+  }
+
   .sidebar {
     max-height: none;
+    order: 2;
     position: static;
   }
 }
@@ -746,6 +770,33 @@ menu {
   .topbar {
     padding-left: 14px;
     padding-right: 14px;
+  }
+
+  .topbar h1 {
+    font-size: clamp(2rem, 13vw, 3.5rem);
+  }
+
+  .top-actions {
+    width: 100%;
+  }
+
+  .toolbar-button {
+    flex: 1 1 30%;
+    min-width: 108px;
+  }
+
+  .sidebar {
+    max-height: 45vh;
+    overflow: auto;
+  }
+
+  .day-list {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+
+  .day-button {
+    min-height: 50px;
+    padding: 8px 10px;
   }
 
   .context-grid,
